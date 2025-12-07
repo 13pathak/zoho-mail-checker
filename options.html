@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoho Mail Checker - Settings</title>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --success-color: #188038;
+            --warning-color: #f9a825;
+            --error-color: #d93025;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --border-color: #e8eaed;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #8ab4f8;
+                --success-color: #81c995;
+                --text-primary: #e8eaed;
+                --text-secondary: #9aa0a6;
+                --bg-primary: #202124;
+                --bg-secondary: #292a2d;
+                --border-color: #3c4043;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h1 img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        .card-header.setup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            flex: 1;
+        }
+
+        .setting-label h3 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .setting-label p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .setting-control {
+            margin-left: 16px;
+        }
+
+        select,
+        input[type="number"],
+        input[type="text"],
+        input[type="password"] {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 100%;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        select:focus,
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .input-group small {
+            display: block;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-size: 12px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .toggle-slider {
+                background-color: #5f6368;
+            }
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .toggle input:checked+.toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        .toggle input:checked+.toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: var(--error-color);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .saved-message {
+            display: inline-block;
+            margin-left: 16px;
+            color: var(--success-color);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .saved-message.show {
+            opacity: 1;
+        }
+
+        .setup-steps {
+            counter-reset: step;
+        }
+
+        .step {
+            position: relative;
+            padding: 16px 20px 16px 60px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 20px;
+            top: 16px;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .step h3 {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .step code {
+            display: inline-block;
+            background: var(--bg-secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+        }
+
+        .step a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .step a:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.configured {
+            background: rgba(24, 128, 56, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-badge.not-configured {
+            background: rgba(217, 48, 37, 0.1);
+            color: var(--error-color);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .alert-info {
+            background: rgba(0, 120, 212, 0.1);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .alert-warning {
+            background: rgba(249, 168, 37, 0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            <img src="icons/icon32.png" alt="">
+            Zoho Mail Checker Settings
+        </h1>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="setup">🔧 Setup</button>
+            <button class="tab-btn" data-tab="preferences">⚙️ Preferences</button>
+            <button class="tab-btn" data-tab="account">👤 Account</button>
+        </div>
+
+        <!-- SETUP TAB -->
+        <div id="setup" class="tab-content active">
+            <div class="alert alert-info">
+                <strong>First Time?</strong> Follow the steps below to connect your Zoho Mail account.
+            </div>
+
+            <div class="card">
+                <div class="card-header setup">🚀 Quick Setup Guide</div>
+                <div class="card-body setup-steps">
+                    <div class="step">
+                        <h3>Go to Zoho API Console</h3>
+                        <p>Open for your region:
+                            <a href="https://api-console.zoho.in/" target="_blank">🇮🇳 India</a> •
+                            <a href="https://api-console.zoho.com/" target="_blank">🇺🇸 US</a> •
+                            <a href="https://api-console.zoho.eu/" target="_blank">🇪🇺 EU</a>
+                        </p>
+                    </div>
+                    <div class="step">
+                        <h3>Create a Self Client</h3>
+                        <p>Click <strong>"ADD CLIENT"</strong> → Select <strong>"Self Client"</strong> → Click
+                            <strong>"Create"</strong>
+                        </p>
+                    </div>
+                    <div class="step">
+                        <h3>Copy Client ID & Secret</h3>
+                        <p>Go to <strong>"Client Secret"</strong> tab and copy both values.</p>
+                    </div>
+                    <div class="step">
+                        <h3>Generate Authorization Code</h3>
+                        <p>Go to <strong>"Generate Code"</strong> tab. Enter scopes:</p>
+                        <p><code>ZohoMail.messages.ALL,ZohoMail.folders.ALL,ZohoMail.accounts.ALL</code></p>
+                    </div>
+                    <div class="step">
+                        <h3>Get Refresh Token</h3>
+                        <p>Run: <code>node get_tokens.js</code> and copy the Refresh Token.</p>
+                    </div>
+                    <div class="step">
+                        <h3>Start Proxy Server</h3>
+                        <p>Run: <code>node server\proxy.js</code> (keep it running!)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🔑 API Credentials</div>
+                <div class="card-body">
+                    <div id="credentialsStatus" class="status-badge not-configured" style="margin-bottom: 16px;">
+                        ⚠️ Not Configured
+                    </div>
+
+                    <div class="input-group">
+                        <label for="clientId">Client ID</label>
+                        <input type="text" id="clientId" placeholder="1000.XXXXXXXXXXXXXXXXXXXX">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="clientSecret">Client Secret</label>
+                        <input type="password" id="clientSecret" placeholder="xxxxxxxxxxxxxxxxxxxxxxxx">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="refreshToken">Refresh Token</label>
+                        <input type="password" id="refreshToken" placeholder="1000.xxxxx.xxxxx">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="region">Zoho Region</label>
+                        <select id="region">
+                            <option value="in">🇮🇳 India (zoho.in)</option>
+                            <option value="com">🇺🇸 United States (zoho.com)</option>
+                            <option value="eu">🇪🇺 Europe (zoho.eu)</option>
+                            <option value="au">🇦🇺 Australia (zoho.com.au)</option>
+                        </select>
+                    </div>
+
+                    <button id="saveCredentialsBtn" class="btn btn-success">💾 Save Credentials</button>
+                    <span class="saved-message" id="credentialsSavedMessage">✓ Saved!</span>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Important:</strong> The proxy server must be running for the extension to work!
+            </div>
+        </div>
+
+        <!-- PREFERENCES TAB -->
+        <div id="preferences" class="tab-content">
+            <div class="card">
+                <div class="card-header">🔔 Notifications</div>
+                <div class="card-body">
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Desktop Notifications</h3>
+                            <p>Show notifications when new emails arrive</p>
+                        </div>
+                        <div class="setting-control" style="display: flex; gap: 10px; align-items: center;">
+                            <button id="testNotificationBtn" class="btn"
+                                style="padding: 4px 12px; font-size: 12px; background: #5f6368;">Test</button>
+                            <label class="toggle">
+                                <input type="checkbox" id="notificationsEnabled" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Notification Sound</h3>
+                            <p>Play a sound when new emails arrive</p>
+                        </div>
+                        <div class="setting-control" style="display: flex; align-items: center; min-height: 24px;">
+                            <label class="toggle">
+                                <input type="checkbox" id="soundEnabled">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">📬 Email Checking</div>
+                <div class="card-body">
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Check Interval</h3>
+                            <p>How often to check for new emails</p>
+                        </div>
+                        <div class="setting-control">
+                            <select id="checkInterval">
+                                <option value="1">Every 1 minute</option>
+                                <option value="5" selected>Every 5 minutes</option>
+                                <option value="10">Every 10 minutes</option>
+                                <option value="30">Every 30 minutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Emails to Show</h3>
+                            <p>Maximum number of emails in popup</p>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="maxEmails" min="5" max="50" value="25" style="width: 80px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="savePreferencesBtn" class="btn">💾 Save Preferences</button>
+            <span class="saved-message" id="preferencesSavedMessage">✓ Saved!</span>
+        </div>
+
+        <!-- ACCOUNT TAB -->
+        <div id="account" class="tab-content">
+            <div class="card">
+                <div class="card-header">👤 Account</div>
+                <div class="card-body">
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Signed in as</h3>
+                            <p id="accountEmail">Not signed in</p>
+                        </div>
+                        <div class="setting-control">
+                            <button id="signOutBtn" class="btn btn-danger">Sign Out</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-label">
+                            <h3>Clear All Data</h3>
+                            <p>Remove all stored data including credentials</p>
+                        </div>
+                        <div class="setting-control">
+                            <button id="clearDataBtn" class="btn btn-danger">Clear Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Zoho Mail Checker v1.0.0</p>
+        </div>
+    </div>
+
+    <!-- Load external script to comply with CSP -->
+    <script src="js/options.js"></script>
+</body>
+
+</html>

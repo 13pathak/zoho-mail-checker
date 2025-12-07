@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoho Mail Checker</title>
+  <link rel="stylesheet" href="css/popup.css">
+</head>
+
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <img src="icons/icon32.png" alt="Zoho Mail" class="logo">
+        <h1 class="title">Zoho Mail</h1>
+      </div>
+      <div class="header-right">
+        <button id="refreshBtn" class="icon-btn" title="Refresh">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+          </svg>
+        </button>
+        <button id="settingsBtn" class="icon-btn" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen">
+      <div class="login-container">
+        <img src="icons/icon128.png" alt="Zoho Mail" class="login-logo">
+        <h2>Welcome to Zoho Mail Checker</h2>
+        <p>Check your Zoho Mail inbox directly from your browser</p>
+
+        <div class="region-select">
+          <label for="region">Select your Zoho region:</label>
+          <select id="region">
+            <option value="com">Global (zoho.com)</option>
+            <option value="in">India (zoho.in)</option>
+            <option value="eu">Europe (zoho.eu)</option>
+            <option value="au">Australia (zoho.com.au)</option>
+          </select>
+        </div>
+
+        <div class="redirect-uri-help" id="redirectHelp"
+          style="margin: 12px 0; padding: 12px; background: #fff3cd; border-radius: 8px; font-size: 12px; text-align: left; display: none;">
+          <strong>⚠️ Setup Required:</strong><br>
+          Add this Redirect URI to your <a href="https://api-console.zoho.com/" target="_blank">Zoho API
+            Console</a>:<br>
+          <code id="redirectUri"
+            style="background: #e9ecef; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 6px; word-break: break-all; user-select: all;"></code>
+          <button id="copyUri"
+            style="margin-left: 8px; padding: 4px 8px; border: none; background: #0078d4; color: white; border-radius: 4px; cursor: pointer; font-size: 11px;">Copy</button>
+        </div>
+
+        <button id="loginBtn" class="primary-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+          </svg>
+          Sign in with Zoho
+        </button>
+
+        <p id="setupHint" style="margin-top: 12px; font-size: 12px; color: #666; display: none;">
+          First time? <a href="#" id="openSettingsLink" style="color: #0078d4; text-decoration: none;">Configure API
+            credentials in Settings</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Email Screen -->
+    <div id="mainScreen" class="screen hidden">
+      <!-- User Info -->
+      <div class="user-info">
+        <span id="userEmail" class="user-email"></span>
+        <button id="logoutBtn" class="text-btn">Sign out</button>
+      </div>
+
+      <!-- Email List -->
+      <div id="emailList" class="email-list">
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <span>Loading emails...</span>
+        </div>
+        <div id="noEmails" class="no-emails hidden">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" opacity="0.3">
+            <path
+              d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+          </svg>
+          <p>No emails to show</p>
+        </div>
+        <div id="emails"></div>
+      </div>
+    </div>
+
+    <!-- Email Preview Screen -->
+    <div id="previewScreen" class="screen hidden">
+      <div class="preview-header">
+        <button id="backBtn" class="icon-btn" title="Back">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+          </svg>
+        </button>
+        <div class="preview-actions">
+          <button id="previewArchiveBtn" class="icon-btn" title="Archive">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
+            </svg>
+          </button>
+          <button id="previewDeleteBtn" class="icon-btn" title="Delete">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+            </svg>
+          </button>
+          <button id="previewMarkUnreadBtn" class="icon-btn" title="Mark as Unread">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div id="previewContent" class="preview-content">
+        <div class="preview-subject" id="previewSubject"></div>
+        <div class="preview-meta">
+          <div class="preview-sender" id="previewSender"></div>
+          <div class="preview-date" id="previewDate"></div>
+        </div>
+        <div class="preview-recipient">
+          <span class="label">To:</span>
+          <span id="previewTo"></span>
+        </div>
+        <div class="preview-body" id="previewBody"></div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="js/popup.js" type="module"></script>
+</body>
+
+</html>
