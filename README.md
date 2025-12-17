@@ -26,7 +26,7 @@ A Chrome extension to check your Zoho Mail inbox with desktop notifications. Sim
 ### 1. Download the Extension
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/zoho-mail-checker.git
+git clone https://github.com/13pathak/zoho-mail-checker.git
 cd zoho-mail-checker
 ```
 
@@ -124,8 +124,8 @@ node server/proxy.js
 1. Right-click start-server.bat → Send to → Desktop (create shortcut).
 2. Right-click the new Desktop shortcut → Properties.
 3. In the "Target" field, add cmd /c  to the very beginning. Example: cmd /c "C:\...\server\start-server.bat"
-4. Click OK.
-5. Drag this shortcut to your taskbar. Now you have a "button" on your taskbar to start it instantly.
+Click OK.
+Drag this shortcut to your taskbar. Now you have a "button" on your taskbar to start it instantly.
 
 ## File Structure
 

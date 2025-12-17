@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build outputs (if any)
+dist/
+build/
+
+# Environment files (never commit secrets)
+.env
+.env.local
+*.env
+
+# Temporary files
+*.tmp
+*.temp
