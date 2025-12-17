@@ -2,7 +2,8 @@
 
 A Chrome extension to check your Zoho Mail inbox with desktop notifications, search, and direct email management. Similar to Checker Plus for Gmail, but for Zoho Mail.
 
-![Extension Screenshot](screenshots/extension.png)
+<img width="524" height="631" alt="image" src="https://github.com/user-attachments/assets/d9ed4640-6871-4823-9989-ced01b3c79f8" />
+
 
 ## Features
 
