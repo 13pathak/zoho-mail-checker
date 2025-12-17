@@ -29,15 +29,44 @@ async function setupAlarm() {
     });
 }
 
+// Rate limiting
+let lastCheckTime = 0;
+const MIN_CHECK_INTERVAL = 10000; // 10 seconds
+
 // Handle alarm
 chrome.alarms.onAlarm.addListener(async (alarm) => {
     if (alarm.name === ALARM_NAME) {
+        console.log('Alarm fired, starting polling cycle...');
         await checkForNewEmails();
+
+        // Burst polling: Attempt to check every 15 seconds during the 1-minute active window
+        // This relies on the Service Worker staying alive.
+        startBurstPolling();
     }
 });
 
+function startBurstPolling() {
+    // Schedule checks at 15s, 30s, 45s
+    const delays = [15000, 30000, 45000];
+
+    delays.forEach(delay => {
+        setTimeout(async () => {
+            console.log(`Burst poll at ${delay}ms`);
+            await checkForNewEmails();
+        }, delay);
+    });
+}
+
 // Check for new emails
 async function checkForNewEmails() {
+    // Rate limit check
+    const now = Date.now();
+    if (now - lastCheckTime < MIN_CHECK_INTERVAL) {
+        console.log('Skipping check due to rate limit');
+        return;
+    }
+    lastCheckTime = now;
+
     try {
         const loggedIn = await isLoggedIn();
         if (!loggedIn) {
