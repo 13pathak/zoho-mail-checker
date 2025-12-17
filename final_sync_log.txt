@@ -1,0 +1,9 @@
+Adding resolved file... 
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+Committing merge... 
+[main 33ad740] Merge remote-tracking branch 'origin/main' into main
+ 1 file changed, 34 deletions(-)
+Pushing to remote... 
+To https://github.com/13pathak/zoho-mail-checker.git
+   53b4663..33ad740  main -> main
+Done. 

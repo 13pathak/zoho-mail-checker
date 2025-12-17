@@ -1,7 +1,7 @@
 // Background service worker for Zoho Mail Checker
 
 import { isLoggedIn, getAccessToken, refreshToken } from './auth.js';
-import { getAccounts, getInboxFolderId, getEmails, markAsRead, deleteEmails, archiveEmails } from './api.js';
+import { getAccounts, getInboxFolderId, getEmails, markAsRead, deleteEmails, archiveEmails, markAsSpam } from './api.js';
 
 // Constants
 const CHECK_INTERVAL_MINUTES = 5;
@@ -92,6 +92,9 @@ async function checkForNewEmails() {
             const { notificationsEnabled = true } = await chrome.storage.sync.get('notificationsEnabled');
 
             if (notificationsEnabled) {
+                // Play notification sound (TTS)
+                chrome.tts.speak('New email received');
+
                 const newEmails = emails.filter(e => newEmailIds.includes(e.messageId));
                 for (const email of newEmails.slice(0, 3)) { // Max 3 notifications
                     showNotification(email);
@@ -244,6 +247,12 @@ async function handleMessage(message) {
         case 'archiveEmails':
             const accArch = await chrome.storage.local.get('accountId');
             await archiveEmails(accArch.accountId, message.messageIds);
+            await checkForNewEmails();
+            return { success: true };
+
+        case 'markAsSpam':
+            const accSpam = await chrome.storage.local.get('accountId');
+            await markAsSpam(accSpam.accountId, message.messageIds);
             await checkForNewEmails();
             return { success: true };
 

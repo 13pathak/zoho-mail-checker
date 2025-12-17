@@ -1,0 +1,21 @@
+On branch main
+Your branch is behind 'origin/main' by 1 commit, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	new file:   .gitignore
+	modified:   README.md
+	new file:   Zoho Checker.code-workspace
+	modified:   icons/icon128.png
+	modified:   icons/icon16.png
+	modified:   icons/icon32.png
+	modified:   icons/icon48.png
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	check_status.bat
+	status.txt
+
+origin	https://github.com/13pathak/zoho-mail-checker.git (fetch)
+origin	https://github.com/13pathak/zoho-mail-checker.git (push)

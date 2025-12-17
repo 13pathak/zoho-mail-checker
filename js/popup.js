@@ -1,7 +1,7 @@
 // Popup script for Zoho Mail Checker
 
 import { login, logout, isLoggedIn, getRedirectUrl } from './auth.js';
-import { getAccounts, getEmails, getEmailContent, getInboxFolderId } from './api.js';
+import { getAccounts, getEmails, getEmailContent, getInboxFolderId, getFolders, searchEmails, sendEmail } from './api.js';
 
 // DOM Elements
 const loginScreen = document.getElementById('loginScreen');
@@ -18,6 +18,10 @@ const loadingDiv = document.getElementById('loading');
 const noEmailsDiv = document.getElementById('noEmails');
 const backBtn = document.getElementById('backBtn');
 const toast = document.getElementById('toast');
+const toolbar = document.getElementById('toolbar');
+const folderSelect = document.getElementById('folderSelect');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
 
 // Preview elements
 const previewSubject = document.getElementById('previewSubject');
@@ -28,11 +32,15 @@ const previewBody = document.getElementById('previewBody');
 const previewArchiveBtn = document.getElementById('previewArchiveBtn');
 const previewDeleteBtn = document.getElementById('previewDeleteBtn');
 const previewMarkUnreadBtn = document.getElementById('previewMarkUnreadBtn');
+const previewSpamBtn = document.getElementById('previewSpamBtn');
+const previewReplyBtn = document.getElementById('previewReplyBtn');
 
 // State
 let currentEmail = null;
 let accountId = null;
 let inboxFolderId = null;
+let currentFolderId = null;
+let currentSearchTerm = '';
 
 // Initialize popup
 async function init() {
@@ -40,7 +48,8 @@ async function init() {
 
     if (loggedIn) {
         showMainScreen();
-        await loadEmails();
+        await loadEmails(); // Start loading emails immediately
+        await loadFolders(); // Then load folders
     } else {
         showLoginScreen();
         // Show redirect URL helper
@@ -93,12 +102,14 @@ function showLoginScreen() {
     loginScreen.classList.remove('hidden');
     mainScreen.classList.add('hidden');
     previewScreen.classList.add('hidden');
+    toolbar.classList.add('hidden');
 }
 
 function showMainScreen() {
     loginScreen.classList.add('hidden');
     mainScreen.classList.remove('hidden');
     previewScreen.classList.add('hidden');
+    toolbar.classList.remove('hidden');
 
     // Load user email
     chrome.storage.local.get('userEmail').then(({ userEmail }) => {
@@ -106,10 +117,13 @@ function showMainScreen() {
     });
 }
 
+
+
 function showPreviewScreen() {
     loginScreen.classList.add('hidden');
     mainScreen.classList.add('hidden');
     previewScreen.classList.remove('hidden');
+    toolbar.classList.add('hidden');
 }
 
 // Show toast message
@@ -185,11 +199,29 @@ async function loadEmails() {
             }
         }
 
-        // Fetch emails (works with or without folderId)
-        const emails = await getEmails(accountId, {
-            folderId: inboxFolderId, // May be undefined, that's OK
-            limit: 25
-        });
+        // Use selected folder or fallback to inbox
+        const folderIdToUse = currentFolderId || inboxFolderId;
+
+        let emails = [];
+        if (currentSearchTerm) {
+            // Search mode
+            const response = await searchEmails(accountId, currentSearchTerm);
+            emails = response.data || [];
+        } else {
+            // Normal list mode
+            const response = await getEmails(accountId, {
+                folderId: folderIdToUse,
+                limit: 25
+            });
+            emails = response; // getEmails returns the array directly
+            if (response.data) emails = response.data; // Handle potential different return structure
+        }
+
+        if (!Array.isArray(emails)) {
+            // Safe fallback
+            if (emails && emails.data) emails = emails.data;
+            else emails = [];
+        }
 
         loadingDiv.classList.add('hidden');
 
@@ -218,6 +250,51 @@ async function loadEmails() {
         } else {
             showToast('Failed to load emails: ' + error.message, 'error');
         }
+    }
+}
+
+// Load folders
+async function loadFolders() {
+    try {
+        const folders = await getFolders(accountId);
+        folderSelect.innerHTML = '';
+
+        if (folders.length === 0) {
+            folderSelect.innerHTML = '<option value="">No folders</option>';
+            return;
+        }
+
+        // Sort folders: Inbox first, then system folders, then others
+        const systemFolders = ['inbox', 'drafts', 'sent', 'spam', 'trash'];
+        folders.sort((a, b) => {
+            const indexA = systemFolders.indexOf(a.folderName.toLowerCase());
+            const indexB = systemFolders.indexOf(b.folderName.toLowerCase());
+
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+
+            return a.folderName.localeCompare(b.folderName);
+        });
+
+        folders.forEach(folder => {
+            const option = document.createElement('option');
+            option.value = folder.folderId;
+            option.textContent = folder.folderName;
+            folderSelect.appendChild(option);
+        });
+
+        // Select current folder (default to Inbox)
+        if (currentFolderId) {
+            folderSelect.value = currentFolderId;
+        } else if (inboxFolderId) {
+            folderSelect.value = inboxFolderId;
+            currentFolderId = inboxFolderId;
+        }
+
+    } catch (error) {
+        console.error('Error loading folders:', error);
+        folderSelect.innerHTML = '<option value="">Error loading folders</option>';
     }
 }
 
@@ -250,9 +327,14 @@ function createEmailElement(email) {
               <path d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5z"/>
             </svg>
           </button>
-          <button class="email-action-btn delete" title="Delete" data-action="delete">
+            <button class="email-action-btn delete" title="Delete" data-action="delete">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+            </svg>
+          </button>
+          <button class="email-action-btn spam" title="Mark as Spam" data-action="markAsSpam">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16.05 3H7.95L3 7.95v8.1L7.95 21h8.1L21 16.05V7.95L16.05 3zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm1.6-6h-3.2l.6-6h2l.6 6z"/>
             </svg>
           </button>
           <button class="email-action-btn mark-read" title="${email.status === '0' ? 'Mark as Read' : 'Mark as Unread'}" data-action="${email.status === '0' ? 'markAsRead' : 'markAsUnread'}">
@@ -318,17 +400,23 @@ async function openEmailPreview(email) {
 // Handle email action
 async function handleEmailAction(action, messageId, folderId) {
     try {
-        await chrome.runtime.sendMessage({
+        const response = await chrome.runtime.sendMessage({
             action: action === 'delete' ? 'deleteEmails' :
                 action === 'archive' ? 'archiveEmails' :
-                    action === 'markAsRead' ? 'markAsRead' : 'markAsUnread',
+                    action === 'markAsSpam' ? 'markAsSpam' :
+                        action === 'markAsRead' ? 'markAsRead' : 'markAsUnread',
             messageIds: [messageId],
             folderId
         });
 
+        if (response && response.error) {
+            throw new Error(response.error);
+        }
+
         const actionLabels = {
             delete: 'Deleted',
             archive: 'Archived',
+            markAsSpam: 'Marked as Spam',
             markAsRead: 'Marked as read',
             markAsUnread: 'Marked as unread'
         };
@@ -406,7 +494,66 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+const openAppBtn = document.getElementById('openAppBtn');
+const composeBtn = document.getElementById('composeBtn');
+
 // Event listeners
+composeBtn.addEventListener('click', async () => {
+    const { region } = await chrome.storage.local.get('region');
+    let url = 'https://mail.zoho.com/zm/#compose';
+
+    if (region === 'in') url = 'https://mail.zoho.in/zm/#compose';
+    else if (region === 'eu') url = 'https://mail.zoho.eu/zm/#compose';
+    else if (region === 'au') url = 'https://mail.zoho.com.au/zm/#compose';
+
+    chrome.tabs.create({ url });
+});
+
+openAppBtn.addEventListener('click', async () => {
+    const { region } = await chrome.storage.local.get('region');
+    let url = 'https://mail.zoho.com/zm/';
+
+    if (region === 'in') url = 'https://mail.zoho.in/zm/';
+    else if (region === 'eu') url = 'https://mail.zoho.eu/zm/';
+    else if (region === 'au') url = 'https://mail.zoho.com.au/zm/';
+
+    chrome.tabs.create({ url });
+});
+
+folderSelect.addEventListener('change', async () => {
+    currentFolderId = folderSelect.value;
+    // Clear search when changing folders
+    currentSearchTerm = '';
+    searchInput.value = '';
+    await loadEmails();
+});
+
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const handleSearch = debounce(async (e) => {
+    currentSearchTerm = e.target.value.trim();
+    await loadEmails();
+}, 500);
+
+searchInput.addEventListener('input', handleSearch);
+
+// Search button (immediate search)
+searchBtn.addEventListener('click', async () => {
+    currentSearchTerm = searchInput.value.trim();
+    await loadEmails();
+});
+
 loginBtn.addEventListener('click', async () => {
     loginBtn.disabled = true;
     loginBtn.innerHTML = '<div class="spinner" style="width:20px;height:20px;border-width:2px;"></div> Signing in...';
@@ -481,6 +628,28 @@ previewDeleteBtn.addEventListener('click', async () => {
         await handleEmailAction('delete', currentEmail.messageId, currentEmail.folderId);
         showMainScreen();
         await loadEmails();
+    }
+});
+
+previewSpamBtn.addEventListener('click', async () => {
+    if (currentEmail) {
+        await handleEmailAction('markAsSpam', currentEmail.messageId, currentEmail.folderId);
+        showMainScreen();
+        await loadEmails();
+    }
+});
+
+previewReplyBtn.addEventListener('click', async () => {
+    if (currentEmail) {
+        const { region } = await chrome.storage.local.get('region');
+        let domain = 'zoho.com';
+        if (region === 'in') domain = 'zoho.in';
+        else if (region === 'eu') domain = 'zoho.eu';
+        else if (region === 'au') domain = 'zoho.com.au';
+
+        // Deep link format: https://mail.zoho.com/zm/#mail/folder/<folderId>/p/<messageId>
+        const url = `https://mail.${domain}/zm/#mail/folder/${currentEmail.folderId}/p/${currentEmail.messageId}`;
+        chrome.tabs.create({ url });
     }
 });
 

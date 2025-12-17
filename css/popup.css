@@ -95,6 +95,70 @@ body {
   gap: 4px;
 }
 
+/* Toolbar */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.folder-select-container {
+  flex: 0 0 120px;
+}
+
+.folder-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 13px;
+  height: 32px;
+}
+
+.search-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+  overflow: hidden;
+  height: 32px;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+  color: var(--text-primary);
+  background: transparent;
+  width: 100%;
+}
+
+.search-btn {
+  width: 28px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.search-btn:hover {
+  color: var(--primary-color);
+  background: var(--bg-hover);
+}
+
 /* Buttons */
 .icon-btn {
   display: flex;
@@ -387,6 +451,10 @@ body {
 
 .email-action-btn.archive:hover {
   color: var(--success-color);
+}
+
+.email-action-btn.spam:hover {
+  color: var(--warning-color);
 }
 
 /* Loading */

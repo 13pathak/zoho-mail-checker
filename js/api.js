@@ -137,6 +137,27 @@ async function getEmailDetails(accountId, messageId) {
     return response.data || {};
 }
 
+// Search emails
+async function searchEmails(accountId, searchKey) {
+    // Determine sort order
+    // Default to dateDesc (Newest first)
+    return apiRequest(`/accounts/${accountId}/messages/search?searchKey=${encodeURIComponent(searchKey)}&sortorder=false&limit=25`);
+}
+
+// Send email
+async function sendEmail(accountId, emailData) {
+    const { to, subject, content } = emailData;
+
+    return apiRequest(`/accounts/${accountId}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+            toAddress: to,
+            subject: subject,
+            content: content
+        })
+    });
+}
+
 // Mark emails as read
 async function markAsRead(accountId, messageIds) {
     if (!Array.isArray(messageIds)) messageIds = [messageIds];
@@ -170,18 +191,25 @@ async function deleteEmails(accountId, messageIds, folderId) {
 
     try {
         // Get trash folder ID
+        // Get trash folder ID - check multiple common names
         const folders = await getFolders(accountId);
-        const trash = folders.find(f => f.folderName?.toLowerCase() === 'trash');
+        const trash = folders.find(f => {
+            const name = f.folderName?.toLowerCase();
+            const path = f.path?.toLowerCase();
+            return name === 'trash' || name === 'bin' || name === 'deleted items' ||
+                path === '/trash' || path === '/bin';
+        });
 
         if (!trash) {
-            throw new Error('Trash folder not found (API access restricted)');
+            console.error('Available folders:', folders.map(f => f.folderName));
+            throw new Error('Trash folder not found. Please check your folder names.');
         }
 
-        return apiRequest(`/accounts/${accountId}/messages/move`, {
+        return apiRequest(`/accounts/${accountId}/updatemessage`, {
             method: 'PUT',
             body: JSON.stringify({
+                mode: 'moveMessage',
                 messageId: messageIds,
-                folderId: folderId,
                 destfolderId: trash.folderId
             })
         });
@@ -293,5 +321,7 @@ export {
     archiveEmails,
     markAsSpam,
     setFlag,
-    refreshAccessToken
+    refreshAccessToken,
+    searchEmails,
+    sendEmail
 };

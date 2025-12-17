@@ -17,6 +17,18 @@
         <h1 class="title">Zoho Mail</h1>
       </div>
       <div class="header-right">
+        <button id="composeBtn" class="icon-btn" title="Compose Email">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+          </svg>
+        </button>
+        <button id="openAppBtn" class="icon-btn" title="Open Zoho Mail">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z" />
+          </svg>
+        </button>
         <button id="refreshBtn" class="icon-btn" title="Refresh">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -31,6 +43,25 @@
         </button>
       </div>
     </header>
+
+    <!-- Toolbar -->
+    <div id="toolbar" class="toolbar hidden">
+      <div class="folder-select-container">
+        <select id="folderSelect" class="folder-select">
+          <option value="">Inbox</option>
+          <option value="loading">Loading folders...</option>
+        </select>
+      </div>
+      <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+        <button id="searchBtn" class="search-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+          </svg>
+        </button>
+      </div>
+    </div>
 
     <!-- Login Screen -->
     <div id="loginScreen" class="screen">
@@ -115,6 +146,17 @@
                 d="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
             </svg>
           </button>
+          <button id="previewSpamBtn" class="icon-btn" title="Mark as Spam">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M16.05 3H7.95L3 7.95v8.1L7.95 21h8.1L21 16.05V7.95L16.05 3zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm1.6-6h-3.2l.6-6h2l.6 6z" />
+            </svg>
+          </button>
+          <button id="previewReplyBtn" class="icon-btn" title="Reply on Web">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />
+            </svg>
+          </button>
           <button id="previewDeleteBtn" class="icon-btn" title="Delete">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
@@ -140,13 +182,15 @@
         </div>
         <div class="preview-body" id="previewBody"></div>
       </div>
+
+
+
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast hidden"></div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast hidden"></div>
-  </div>
-
-  <script src="js/popup.js" type="module"></script>
+    <script src="js/popup.js" type="module"></script>
 </body>
 
 </html>

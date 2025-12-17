@@ -27,7 +27,8 @@
         "notifications",
         "storage",
         "identity",
-        "offscreen"
+        "offscreen",
+        "tts"
     ],
     "host_permissions": [
         "http://127.0.0.1:3847/*",
