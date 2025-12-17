@@ -1,18 +1,20 @@
 // Zoho Mail API wrapper
 // API Documentation: https://www.zoho.com/mail/help/api/
-// Uses local proxy server to bypass Zoho's browser restrictions
+// Accesses Zoho API directly using Chrome Extension host permissions
 
-// Local proxy server URL
-const PROXY_BASE = 'http://127.0.0.1:3847/api';
-
-// Get the API base URL (uses local proxy)
+// Get the API base URL based on region
 async function getApiBase() {
-    return PROXY_BASE;
+    const { region } = await chrome.storage.local.get('region');
+    const tld = region === 'in' ? 'in' :
+        region === 'eu' ? 'eu' :
+            region === 'au' ? 'com.au' : 'com'; // default to .com
+
+    return `https://mail.zoho.${tld}/api`;
 }
 
-// Make authenticated API request through proxy
+// Make authenticated API request
 async function apiRequest(endpoint, options = {}) {
-    const { accessToken, region } = await chrome.storage.local.get(['accessToken', 'region']);
+    const { accessToken } = await chrome.storage.local.get(['accessToken']);
 
     if (!accessToken) {
         throw new Error('Not authenticated');
@@ -21,8 +23,7 @@ async function apiRequest(endpoint, options = {}) {
     const apiBase = await getApiBase();
     const url = `${apiBase}${endpoint}`;
 
-    console.log('API Request (via proxy):', url);
-    console.log('Token (first 20 chars):', accessToken.substring(0, 20) + '...');
+    console.log('API Request:', url);
 
     try {
         const response = await fetch(url, {
@@ -31,7 +32,6 @@ async function apiRequest(endpoint, options = {}) {
                 'Authorization': `Zoho-oauthtoken ${accessToken}`,
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
-                'X-Zoho-Region': region || 'in',
                 ...options.headers
             }
         });
@@ -60,13 +60,9 @@ async function apiRequest(endpoint, options = {}) {
         }
 
         const data = await response.json();
-        console.log('API Response data:', data);
-        return data;
+        return data; // Some endpoints might not return data property at top level, handled by caller
     } catch (error) {
-        // Check if proxy server is running
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            throw new Error('Proxy server not running. Please start the server first.');
-        }
+        console.error('Request failed:', error);
         throw error;
     }
 }

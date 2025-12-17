@@ -33,8 +33,8 @@ function getRedirectUrl() {
     return chrome.identity.getRedirectURL();
 }
 
-// Local proxy server URL for token refresh
-const TOKEN_PROXY_URL = 'http://127.0.0.1:3847';
+// Local proxy server URL for token refresh - REMOVED
+// const TOKEN_PROXY_URL = 'http://127.0.0.1:3847';
 
 // Get credentials from storage
 async function getCredentials() {
@@ -52,28 +52,37 @@ async function getCredentials() {
     };
 }
 
-// Start login - gets new access token via proxy using Self Client refresh token
+// Start login - gets new access token directly from Zoho using Self Client refresh token
 async function login(region = 'in') {
-    console.log('Logging in via proxy with Self Client...');
+    console.log('Logging in directly...');
 
     try {
         // Get credentials from storage
         const credentials = await getCredentials();
 
-        // Use stored region if available
+        // Use stored region if available, otherwise use passed region (update it)
         const actualRegion = credentials.region || region;
 
-        // Request new access token through proxy server
-        const response = await fetch(`${TOKEN_PROXY_URL}/token`, {
+        // Construct Token URL
+        const tld = actualRegion === 'in' ? 'in' :
+            actualRegion === 'eu' ? 'eu' :
+                actualRegion === 'au' ? 'com.au' : 'com';
+
+        const tokenUrl = `https://accounts.zoho.${tld}/oauth/v2/token`;
+
+        console.log('Requesting token from:', tokenUrl);
+
+        // Request new access token
+        const response = await fetch(tokenUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify({
+            body: new URLSearchParams({
                 refresh_token: credentials.refresh_token,
                 client_id: credentials.client_id,
                 client_secret: credentials.client_secret,
-                region: actualRegion
+                grant_type: 'refresh_token'
             })
         });
 
@@ -85,13 +94,13 @@ async function login(region = 'in') {
         }
 
         if (!data.access_token) {
-            throw new Error('No access token received. Is the proxy server running?');
+            throw new Error('No access token received from Zoho.');
         }
 
         // Store tokens
         await chrome.storage.local.set({
             accessToken: data.access_token,
-            refreshToken: credentials.refresh_token,
+            // refreshToken: credentials.refresh_token, // Already stored
             region: actualRegion,
             tokenExpiry: Date.now() + ((data.expires_in || 3600) * 1000),
             isLoggedIn: true
@@ -101,9 +110,6 @@ async function login(region = 'in') {
         return true;
     } catch (error) {
         console.error('Login failed:', error);
-        if (error.message.includes('Failed to fetch')) {
-            throw new Error('Proxy server not running. Please start the server first.');
-        }
         if (error.message.includes('Credentials not configured')) {
             throw error;
         }

@@ -31,8 +31,6 @@
         "tts"
     ],
     "host_permissions": [
-        "http://127.0.0.1:3847/*",
-        "http://localhost:3847/*",
         "https://mail.zoho.com/*",
         "https://mail.zoho.in/*",
         "https://mail.zoho.eu/*",
