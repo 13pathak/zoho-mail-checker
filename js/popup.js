@@ -199,16 +199,28 @@ async function loadEmails() {
             }
         }
 
-        // Use selected folder or fallback to inbox
-        const folderIdToUse = currentFolderId || inboxFolderId;
+        // Use selected folder or fallback to All Unread
+        // Default to 'all_unread' if nothing selected
+        if (!currentFolderId) currentFolderId = 'all_unread';
+
+        const folderIdToUse = currentFolderId;
 
         let emails = [];
         if (currentSearchTerm) {
             // Search mode
             const response = await searchEmails(accountId, currentSearchTerm);
             emails = response.data || [];
+        } else if (currentFolderId === 'all_unread') {
+            // All Unread mode
+            const response = await getEmails(accountId, {
+                folderId: null, // null means all folders
+                status: 'unread',
+                limit: 25
+            });
+            emails = response; // getEmails returns the array directly
+            if (response.data) emails = response.data;
         } else {
-            // Normal list mode
+            // Specific folder mode
             const response = await getEmails(accountId, {
                 folderId: folderIdToUse,
                 limit: 25
@@ -264,6 +276,12 @@ async function loadFolders() {
             return;
         }
 
+        // Add "All Unread" option first
+        const allUnreadOption = document.createElement('option');
+        allUnreadOption.value = 'all_unread';
+        allUnreadOption.textContent = 'All Unread';
+        folderSelect.appendChild(allUnreadOption);
+
         // Sort folders: Inbox first, then system folders, then others
         const systemFolders = ['inbox', 'drafts', 'sent', 'spam', 'trash'];
         folders.sort((a, b) => {
@@ -284,12 +302,12 @@ async function loadFolders() {
             folderSelect.appendChild(option);
         });
 
-        // Select current folder (default to Inbox)
+        // Select current folder (default to All Unread)
         if (currentFolderId) {
             folderSelect.value = currentFolderId;
-        } else if (inboxFolderId) {
-            folderSelect.value = inboxFolderId;
-            currentFolderId = inboxFolderId;
+        } else {
+            folderSelect.value = 'all_unread';
+            currentFolderId = 'all_unread';
         }
 
     } catch (error) {

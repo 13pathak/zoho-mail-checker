@@ -101,7 +101,7 @@ async function checkForNewEmails() {
 
         // Fetch unread emails
         const emails = await getEmails(accountId, {
-            folderId: inboxFolderId,
+            folderId: null, // Fetch from all folders
             status: 'unread',
             limit: 50
         });
