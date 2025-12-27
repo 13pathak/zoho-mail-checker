@@ -560,7 +560,15 @@ body {
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-primary);
+  overflow-wrap: break-word;
   word-wrap: break-word;
+  word-break: break-word;
+}
+
+.preview-body * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-wrap: break-word !important;
 }
 
 .preview-body img {
